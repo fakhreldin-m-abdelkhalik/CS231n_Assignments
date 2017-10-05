@@ -63,15 +63,15 @@ class KNearestNeighbor(object):
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
     dists = np.zeros((num_test, num_train))
-    for i in xrange(num_test):
-      for j in xrange(num_train):
+    for i in range(num_test):
+      for j in range(num_train):
         #####################################################################
         # TODO:                                                             #
         # Compute the l2 distance between the ith test point and the jth    #
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        pass
+        dists[i, j] = np.sqrt(np.sum(np.square((X[i, :] - self.X_train[j, :]))))
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -87,13 +87,13 @@ class KNearestNeighbor(object):
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
     dists = np.zeros((num_test, num_train))
-    for i in xrange(num_test):
+    for i in range(num_test):
       #######################################################################
       # TODO:                                                               #
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-      pass
+      dists[i, :] = np.sqrt(np.sum(np.square((X[i, :] - self.X_train)),1))
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -121,7 +121,9 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-    pass
+    vecTest= np.reshape(np.sum(np.square(X), 1),(X.shape[0], 1))
+    vecTrain = np.sum(np.square(self.X_train), 1)
+    dists = np.sqrt(vecTrain + vecTest - 2 * (np.dot(X, (self.X_train).T)))
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
@@ -142,7 +144,7 @@ class KNearestNeighbor(object):
     """
     num_test = dists.shape[0]
     y_pred = np.zeros(num_test)
-    for i in xrange(num_test):
+    for i in range(num_test):
       # A list of length k storing the labels of the k nearest neighbors to
       # the ith test point.
       closest_y = []
@@ -153,7 +155,12 @@ class KNearestNeighbor(object):
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      pass
+      #print (dists[i])
+      sorted_dist = np.argsort(dists[i, :])
+      #print (dists[i, sorted_dist])
+      first_sorted = sorted_dist[range(k)]
+      #print (first_sorted)
+      closest_y = self.y_train[first_sorted]
       #########################################################################
       # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
@@ -161,7 +168,14 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      pass
+      bins = np.bincount(closest_y)
+      #print (bins)
+      #print (np.argmax(bins))
+      y_pred[i] = np.argmax(bins)
+      #scores = np.zeros(10)
+      #for j in range(closest_y.shape[0]):
+      #  scores[closest_y[j]] += 1
+      #y_pred[i] = np.argmax(scores)
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
